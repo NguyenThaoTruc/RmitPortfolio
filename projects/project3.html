@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGUYEN THAO TRUC</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton+SC&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton+SC&family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&family=Montserrat:ital,wght@0,900;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <style>
+        html {
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body>
+    <div id="popup" class="popup">
+        <span class="close">&times;</span>
+        <img class="popup-content" id="popup-image">
+        <a class="prev" onclick="changeImage(-1)">&#10094;</a>
+        <a class="next" onclick="changeImage(1)">&#10095;</a>
+    </div>
+    <!--NAVBAR-->
+    <nav class="navbar">
+        <div class="navbar__container">
+            <a href="/index.html" id="navbar__logo">NGUYEN THAO TRUC</a>
+            <div class="navbar__toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="navbar__menu">
+                <li class="navbar__item">
+                    <a href="/projects/project3.html" class="navbar__links">About</a>
+                </li>
+                <li class="navbar__item"></li>
+                    <a href="/projects/portfolio.html" class="navbar__links">Achievements</a>
+                </li>
+                <li class="navbar__btn">
+                    <a href="/index.html" class="button">Home</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    
+<div class="main-p3">
+        <!--(1) NAME-->
+    <div id="p0" style="background-color: black;">
+        <div class="p0-box">
+            <h2 class="anton-sc-regular fade-in-title" style="font-size: 9rem; color: white; text-align: left;">ABOUT ME</h2>
+            <h3 class="montserrat-medium fade-in-subtitle" style="color: #707070; text-align: left;">Nguyen Thao Truc</h3>
+        </div>
+        <div id="scroll-notification" style="display:none; position:fixed; top:30px; left:50%; transform:translateX(-50%); background:#222; color: #ffffff; padding:16px 32px; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:1.2rem; z-index:9999; box-shadow:0 2px 8px rgba(0,0,0,0.2);">
+            Please scroll down
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+            // Wait for both title and subtitle to finish animating
+            gsap.timeline()
+                .to({}, {duration: 2.5}) // 2s title + 1s delay for subtitle
+                .call(function() {
+                document.getElementById('scroll-notification').style.display = 'block';
+                gsap.fromTo(
+                    "#scroll-notification",
+                    { opacity: 0, y: -20 },
+                    { opacity: 1, y: 0, duration: 0.7, ease: "power2.out" }
+                );
+                });
+
+            // Hide notification after 6 seconds
+            setTimeout(function() {
+                gsap.to("#scroll-notification", {
+                    opacity: 0,
+                    y: -20,
+                    duration: 0.5,
+                    ease: "power2.in",
+                    onComplete: function() {
+                        document.getElementById('scroll-notification').style.display = 'none';
+                    }
+                });
+            }, 6000);
+            });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                gsap.fromTo(
+                    ".fade-in-title",
+                    { opacity: 0 },
+                    { opacity: 1, duration: 2, ease: "power2.out" }
+                );
+                gsap.fromTo(
+                    ".fade-in-subtitle",
+                    { opacity: 0 },
+                    { 
+                        opacity: 1, 
+                        duration: 2, 
+                        delay: 1, 
+                        ease: "power2.out",
+                    }
+                );
+            });
+        </script>
+
+
+    </div>
+
+    <!--(2) PROJECT-->
+    <div id="P3-intro" style="background-color: #ffffff; padding-bottom: 40px; ">
+        <div class="intro-text fade-in-intro intro-cont">
+            <h2 class="montserrat-bold" style="color: #000000;">About Me</h2>
+            <p class="montserrat-medium" style="color: #000918;">
+                My name is Nguyen Thao Truc, a student at Le Hong Phong High School for the Gifted. As an aspiring designer and community-oriented creator, I’m passionate about using art and technology to tell meaningful stories and drive positive change. I believe that creativity is most powerful when it connects people and inspires action. Whether through visual design, digital media, or hands-on projects, I always strive to combine aesthetics with purpose.
+                <br><br>Below are my reference letter, certificates recognizing my extracurricular contributions, and an introductory video about me
+            </p>
+        </div>
+        <style>
+            .text-highlight {
+                position: relative;
+                background: none;
+                color: #fff5dd;
+                padding: 0 2px;
+                z-index: 1;
+                overflow: hidden;
+            }
+            .text-highlight::before {
+                content: '';
+                position: absolute;
+                left: 0; top: 0; bottom: 0;
+                width: 100%;
+                background: #ffbc1e;
+                z-index: -1;
+                transform: scaleX(0);
+                transform-origin: left;
+                transition: none;
+                border-radius: 3px;
+                height: 100%;
+                opacity: 0.7;
+            }
+            .text-highlight.th1 { color: #09337a; }
+            .text-highlight.th1::before { background: #0073ef; }
+        </style>
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                if (window.gsap && window.ScrollTrigger) {
+                    gsap.registerPlugin(ScrollTrigger);
+
+                    // Pin the section and control scroll
+                    let highlightsDone = false;
+                    let tl = gsap.timeline({
+                        scrollTrigger: {
+                            trigger: "#P3-intro",
+                            start: "top top",
+                            end: "+=200%",
+                            scrub: true,
+                            pin: true,
+                            anticipatePin: 1,
+                            pinSpacing: true,
+                            onUpdate: function(self) {
+                                // Prevent scroll past until highlights are done
+                                if (!highlightsDone && self.progress > 0.98) {
+                                    self.scroll(self.start + (self.end - self.start) * 0.98);
+                                }
+                            }
+                        }
+                    });
+
+                    // Step 1: Fade in intro
+                    tl.fromTo(
+                        ".fade-in-intro",
+                        { opacity: 0, y: 40 },
+                        { opacity: 1, y: 0, duration: 0.8, ease: "power2.out" }
+                    )
+                    // Step 2: Highlight th1
+                    .to(".text-highlight.th1", {
+                        "--wipe": "scaleX(1)",
+                        duration: 1,
+                        ease: "power2.out"
+                    }, "+=0.2")
+                    // Step 3: Highlight th2
+                    .to(".text-highlight.th2", {
+                        "--wipe": "scaleX(1)",
+                        duration: 1,
+                        ease: "power2.out"
+                    }, "+=0.3")
+                    // Step 4: Allow scroll after highlights
+                    .add(function() {
+                        highlightsDone = true;
+                        ScrollTrigger.refresh();
+                    }, "+=0.2");
+
+                    // CSS variable for pseudo highlight wipe
+                    function setupHighlight(selector, origin) {
+                        const el = document.querySelector(selector);
+                        if (!el) return;
+                        el.style.setProperty('--wipe', 'scaleX(0)');
+                        el.style.setProperty('--wipe-origin', origin);
+                        el.style.position = 'relative';
+                        el.style.zIndex = 1;
+                        const style = document.createElement('style');
+                        style.innerHTML = `
+                            ${selector}::before {
+                                transform: var(--wipe, scaleX(0));
+                                transform-origin: var(--wipe-origin, left);
+                                transition: none;
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                    setupHighlight('.text-highlight.th1', 'left');
+                    setupHighlight('.text-highlight.th2', 'left');
+                }
+            });
+        </script>
+    </div>
+
+    <div class="slide1">
+    <!--(4) ARTWORK ROLE-->
+        <div id="p4-role" >
+            <section class="role-cont">
+                <div class="role-text">
+                    <h2 class="montserrat-bold font-td" style="margin-bottom: 10px; color: #ffffff">PART 1: INTRODUCTION VIDEO</h2>
+                    <p class="montserrat-medium font-chinh" style="color:#e6f6ff">
+                        This is my introduction video, created to help you understand more about who I am, why I believe I’m a strong candidate for the Vice Chancellor’s Scholarship, and how I hope to contribute to a vibrant and positive learning environment at your university.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+    <!--(5) ARTWORK PRODUCT-->
+        <div class="prd-3fr">
+            <div class="prd-3fr-ctn image-box" style="display: flex; justify-content: center;">
+                <iframe width="950" height="480" src="https://www.youtube.com/embed/zAVScszRsAY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide1">
+    <!--(4) ARTWORK ROLE-->
+        <div id="p4-role" >
+            <section class="role-cont">
+                <div class="role-text">
+                    <h2 class="montserrat-bold font-td" style="margin-bottom: 10px; color: #ffffff">PART 2: MOTIVATION LETTER</h2>
+                    <p class="montserrat-medium font-chinh" style="color:#e6f6ff">
+                        This is my introduction video, created to help you understand more about who I am, why I believe I’m a strong candidate for the Vice Chancellor’s Scholarship, and how I hope to contribute to a vibrant and positive learning environment at your university.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+    <!--(5) ARTWORK PRODUCT-->
+        <div class="prd-3fr">
+            <div class="prd-3fr-ctn image-box" style="display: flex; justify-content: center;">
+            <iframe src="https://drive.google.com/file/d/1nYZUaO0K-AUbwZdMyE2MY4ybVUvxrLiK/preview" width="950" height="480" allow="autoplay"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide2">
+    <!--(4) ARTWORK ROLE-->
+        <div id="p4-role" >
+            <section class="role-cont">
+                <div class="role-text">
+                    <h2 class="montserrat-bold font-td" style="margin-bottom: 10px; color: #ffffff">PART 2: ACHIEVEMENT</h2>
+                    <p class="montserrat-medium font-chinh" style="color:#e6f6ff">
+                        The documents below serve as certificates of recognition for my participation in various extracurricular and academic activities. They reflect my active involvement, achievements, and commitment throughout my high school years.
+
+                </div>
+            </section>
+        </div>
+
+    <!--(5) ARTWORK PRODUCT-->
+        <div class="prd-3fr">
+            <div class="prd-3fr-ctn image-box" style="display: flex; justify-content: center;">
+            <iframe src="https://drive.google.com/file/d/1Crwh8bRxV3c0rSwlqWBPxtoqWfmK3G-b/preview" width="950" height="480" allow="autoplay"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <div class="slide3">
+    <!--(4) ARTWORK ROLE-->
+        <div id="p4-role" >
+            <section class="role-cont">
+                <div class="role-text">
+                    <h2 class="montserrat-bold font-td" style="margin-bottom: 10px; color: #ffffff">PART 3: REFERENCE LETTER</h2>
+                    <p class="montserrat-medium font-chinh" style="color:#e6f6ff">
+                        The documents below are reference letters from two of my teachers: one from my Grade 11 homeroom teacher, and the other from my art mentor, who has guided me throughout all three years of high school. Each letter highlights different aspects of my academic journey, personal character, and creative development.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+    <!--(5) ARTWORK PRODUCT-->
+        <div class="prd-3fr">
+            <div class="prd-3fr-ctn image-box" style="display: flex; justify-content: center;">
+            <iframe src="https://drive.google.com/file/d/1ifwq3ojYv4n_DFvsRoMhFS0Q7pYsv6rI/preview" width="950" height="480" allow="autoplay"></iframe>
+            </div>
+        </div>
+    </div>
+
+ 
+
+
+
+    <!--FOOTER-->
+    <footer>
+    <div class="footer-container">
+        <div class="footer-section">
+            <h4>Link</h4>
+            <ul>
+                <li><a href="/index.html">Home</a></li>
+                <li><a href="/projects/project1.html">Project 1</a></li>
+                <li><a href="/projects/project2.html">Project 2</a></li>
+                <li><a href="/projects/project3.html">Project 3</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-section">
+            <h4>Contact</h4>
+            <p>Address: 264/10/17/15 Lê Văn Lương, Tân Hưng Ward, D7, Ho Chi Minh City</p>
+            <p>Email: marythaotruc@gmail.com</p>
+            <p>Phone No: +84 773918933</p>
+        </div>
+        
+        <div class="footer-section">
+            <h4>Social Media</h4>
+            <ul>
+                <li><a href="https://www.facebook.com/nguyen.truc.727448/"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+                <li><a href="https://www.instagram.com/ttrucnguyen._/"><i class="fab fa-instagram"></i> Instagram</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="copyright">
+    <p>&copy; 2025 Nguyen Thao Truc. All rights reserved.</p>
+    </div>
+    </footer>
+
+        
+
+
+    </script>
+    <script src="https://unpkg.com/gsap@3/dist/gsap.min.js"></script>
+    <script src="https://unpkg.com/gsap@3/dist/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/gsap@3/dist/ScrollToPlugin.min.js"></script>
+    <script src="/script.js"></script>
+
+</body>
+</html>

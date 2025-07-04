@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NGUYEN THAO TRUC</title>
+    <link rel="stylesheet" href="/style.css">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9; /* Light blue-gray background */
+            color: #000000; /* Dark slate text */
+            /* Add this to prevent text selection issues with custom cursor */
+            cursor: default;
+        }
+
+        /* Custom scrollbar for the modal content */
+        .modal-content-scrollable::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content-scrollable::-webkit-scrollbar-track {
+            background: #e2e8f0; /* Lighter track */
+            border-radius: 4px;
+        }
+
+        .modal-content-scrollable::-webkit-scrollbar-thumb {
+            background: #94a3b8; /* Gray thumb */
+            border-radius: 4px;
+        }
+
+        .modal-content-scrollable::-webkit-scrollbar-thumb:hover {
+            background: #ffffff; /* Darker gray on hover */
+        }
+
+        /* Animation for fade-in/out modal */
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+
+        .fade-out {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Specific styles for the timeline line and circles */
+        .timeline-container {
+            position: relative;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px; /* Thickness of the line */
+            background-color: #cfcfcf; /* Light gray line */
+            transform: translateX(-50%);
+            border-radius: 2px;
+        }
+
+        /* Adjustments for timeline item alignment based on odd/even child for desktop */
+        .timeline-item:nth-child(even) .timeline-content {
+            text-align: right;
+            padding-right: 2.5rem; /* Space for the circle */
+        }
+
+        .timeline-item:nth-child(odd) .timeline-content {
+            text-align: left;
+            padding-left: 2.5rem; /* Space for the circle */
+        }
+
+        /* Marker positioning for desktop (even/odd) */
+        .timeline-item:nth-child(even) .timeline-marker {
+            left: 50%;
+            transform: translateX(-50%) rotate(45deg); /* Diamond shape */
+            margin-left: -0.5rem; /* Adjust to center on the line */
+        }
+
+        .timeline-item:nth-child(odd) .timeline-marker {
+            left: 50%;
+            transform: translateX(-50%); /* Circle shape */
+            margin-left: -0.5rem; /* Adjust to center on the line */
+            border-radius: 50%;
+        }
+
+        /* Responsive adjustments for the timeline on smaller screens */
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 1.5rem; /* Move line to the left for mobile */
+                transform: translateX(0);
+            }
+
+            .timeline-item {
+                flex-direction: column;
+                align-items: flex-start;
+                padding-left: 3rem; /* Space for the line and markers */
+                position: relative;
+            }
+
+            .timeline-item:nth-child(even) .timeline-content,
+            .timeline-item:nth-child(odd) .timeline-content {
+                text-align: left;
+                padding-left: 0;
+                padding-right: 0;
+            }
+
+            .timeline-item .timeline-marker {
+                left: 1.5rem; /* Align markers with the line */
+                transform: translateX(-50%); /* Center circle on line */
+                border-radius: 50%; /* Ensure all markers are circles on mobile */
+                margin-left: 0;
+            }
+
+            .timeline-item:nth-child(even) .timeline-marker {
+                transform: translateX(-50%);
+            }
+        }
+
+        /* Styles for the custom mouse follower (the "See more" circle) */
+        #custom-mouse-follower {
+            position: fixed;
+            width: 60px; /* Larger size for visibility */
+            height: 60px; /* Make it a perfect circle */
+            background-color: #000000; /* Sky blue, reverted color */
+            color: white; /* White text color */
+            font-weight: 600;
+            border-radius: 50%;
+            display: none; /* Hidden by default using display property */
+            align-items: center;
+            justify-content: center;
+            opacity: 0; /* Also start with opacity 0 for fade-in */
+            pointer-events: none; /* Crucial: allows clicks/hovers to pass through to elements beneath */
+            z-index: 9999; /* Always on top */
+            transform: translate(-50%, -50%) scale(0.5); /* Start small and centered */
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth fade and scale */
+            text-align: center;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            line-height: 1.2;
+            will-change: transform, opacity; /* Optimize for animation */
+        }
+
+        /* Hide the default cursor when hovering over timeline items */
+        /* This rule is now less impactful as cursor is changed per item's header hover */
+        .timeline-item:hover {
+            /* cursor: none;  This will be managed by JS now for more specific control */
+        }
+
+        /* Ensure the timeline content has relative positioning to contain the absolute see-more button */
+        .timeline-content {
+            position: relative;
+        }
+
+        /* Styles for the popup gallery from user's provided code */
+        #popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            display: none; /* Controlled by JS: 'flex' or 'none' */
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* High z-index to be on top */
+        }
+
+        #popup-image {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px; /* Rounded corners for image */
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5); /* Soft shadow */
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 101; /* Above image */
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #ddd;
+        }
+
+        /* Navigation buttons for popup gallery */
+        #lightbox-prev, #lightbox-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+            border-radius: 50%; /* Make them circular */
+            transition: background-color 0.3s ease;
+        }
+
+        #lightbox-prev:hover, #lightbox-next:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        #lightbox-prev {
+            left: 20px;
+        }
+
+        #lightbox-next {
+            right: 20px;
+        }
+
+        /* Removed .hidden-nav class for always-on visibility */
+    </style>
+</head>
+
+<body class="bg-slate-50 text-slate-800 antialiased">    
+    <!--NAVBAR-->
+    <nav class="navbar black shadow-lg sticky top-0 z-40">
+        <div class="navbar__container">
+            <a href="/index.html" id="navbar__logo">NGUYEN THAO TRUC</a>
+            <div class="navbar__toggle" id="mobile-menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+            <ul class="navbar__menu">
+                <li class="navbar__item">
+                    <a href="/projects/project3.html" class="navbar__links">About</a>
+                </li>
+                <li class="navbar__item">
+                    <a href="/projects/portfolio.html" class="navbar__links">Achievements</a>
+                </li>
+                <li class="navbar__item">
+                </li>
+                <li class="navbar__btn">
+                    <a href="/index.html" class="button">Home</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="max-w-6xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <h1 class="text-4xl sm:text-5xl font-bold text-center mb-16 text-black">My Achievements</h1>
+
+        <!-- Category Filter Buttons -->
+        <div class="flex flex-wrap justify-center gap-4 mb-12">
+            <button id="filter-all" class="px-6 py-3 rounded-full bg-black text-white font-semibold shadow-md hover:bg-white transition-colors duration-200 focus:text-black outline-none focus:ring-2 focus:ring-black focus:ring-opacity-75">
+                All Achievements
+            </button>
+            <button id="filter-educational" class="px-6 py-3 rounded-full bg-white text-black border border-sky-600 font-semibold shadow-md hover:bg-sky-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">
+                Educational Achievements
+            </button>
+            <button id="filter-extracurricular" class="px-6 py-3 rounded-full bg-white text-black border border-sky-600 font-semibold shadow-md hover:bg-sky-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-75">
+                Extracurricular Achievements
+            </button>
+        </div>
+
+        <div class="timeline-container relative w-full">
+            <!-- Timeline Line -->
+            <div class="timeline-line hidden md:block"></div>
+
+            <!-- Timeline Items -->
+            <div class="space-y-24 md:space-y-32" id="timeline-items-container">
+                <!-- Achievement 1 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row relative group cursor-pointer"
+                    data-id="graduated-university" data-category="educational">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2018</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">3rd Prize Excellent Student, Grade 12 City Level</h3>
+                        <p class="text-slate-600">Recognized for outstanding academic performance in a highly competitive city-wide examination among top-performing 12th-grade students.</p>
+                        <span class="text-sm text-slate-400 block mt-2">March 2025</span>
+                    </div>
+                </div>
+
+                <!-- Achievement 2 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row-reverse relative group cursor-pointer"
+                    data-id="first-professional-role" data-category="extracurricular">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2019</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">Co-founder & Art Director of Son Project</h3>
+                        <p class="text-slate-600">Raised 10M VND through two campaigns, creating 100 self-designed board games, with proceeds benefiting 50 children at Ho Chi Minh City Children’s Hospital.</p>
+                        <span class="text-sm text-slate-400 block mt-2">2023 - 2025</span>
+                    </div>
+                </div>
+
+                <!-- Achievement 3 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row relative group cursor-pointer"
+                    data-id="launched-personal-project" data-category="extracurricular">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2020</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">Head and Design and Media of LHP Social Work Team</h3>
+                        <p class="text-slate-600">Led a team of 10 designers in delivering 15+ projects and 50+ media publications, attracting 1,000+ participants and growing website followers by 3,000+</p>
+                        <span class="text-sm text-slate-400 block mt-2">2023 - 2024</span>
+                    </div>
+                </div>
+
+                <!-- Achievement 4 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row-reverse relative group cursor-pointer"
+                    data-id="promoted-to-mid-level" data-category="educational">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2021</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">Le Hong Phong Science and Engineering Fair</h3>
+                        <p class="text-slate-600">Developed a project addressing the Learning Methods System for Vietnam’s New High School Education Program, showcasing innovation and research skills.</p>
+                        <span class="text-sm text-slate-400 block mt-2">2023</span>
+                    </div>
+                </div>
+
+                <!-- Achievement 5 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row relative group cursor-pointer"
+                    data-id="contributed-to-open-source" data-category="extracurricular">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2022</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">Core Member of LHP Photography Club</h3>
+                        <p class="text-slate-600">Contributed to 5+ art photography projects, serving as Director of Photography for one. Worked as staff photographer at a LHP Festival concert for 2,000 attendees.</p>
+                        <span class="text-sm text-slate-400 block mt-2">2022 - 2024</span>
+                    </div>
+                </div>
+
+                <!-- Achievement 6 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row-reverse relative group cursor-pointer"
+                    data-id="led-major-project" data-category="educational">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2023</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">Silver medal in Traditional April Olympic Mathematics Competition of Ho Chi Minh City 2021</h3>
+                        <p class="text-slate-600">Outperformed 200+ students citywide in a challenging 2-hour IQ and rapid problem-solving test.</p>
+                        <span class="text-sm text-slate-400 block mt-2"> March 2021</span>
+                    </div>
+                </div>
+
+                <!-- Achievement 7 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row relative group cursor-pointer"
+                    data-id="mentored-new-hires" data-category="educational">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2024</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">Gold medal in Traditional April Olympic Mathematics Competition of Ho Chi Minh City 2019</h3>
+                        <p class="text-slate-600">Awarded top honors among highly competitive students in the city’s premier mathematics contest</p>
+                        <span class="text-sm text-slate-400 block mt-2">April 2019</span>
+                    </div>
+                </div>
+
+                <!-- Achievement 8 -->
+                <div class="timeline-item flex items-center md:justify-between flex-col md:flex-row-reverse relative group cursor-pointer"
+                    data-id="awarded-innovation-prize" data-category="extracurricular">
+                    <!-- Marker for desktop -->
+                    <div class="timeline-marker absolute h-5 w-5 bg-black rounded-full z-10 hidden md:block transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+                    <!-- Marker for mobile -->
+                    <div class="absolute h-4 w-4 bg-black rounded-full z-10 md:hidden left-0 -ml-2 transition-all duration-300 group-hover:scale-125 group-hover:bg-grey"></div>
+
+                    <div class="timeline-content w-full md:w-5/12 p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 transform group-hover:-translate-y-1 relative z-0">
+                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 md:hidden bg-black text-white text-xs font-semibold px-3 py-1 rounded-full shadow-md">2025</div>
+                        <h3 class="text-2xl font-semibold text-black mb-2 mt-4 md:mt-0">2nd Prize – Ho Chi Minh city Discrict 1 Art Competition – Net Ve Xanh 2019</h3>
+                        <p class="text-slate-600">Placed second with a painting advocating for rhino protection, competing against 200+ participants citywide in a timed art challenge.</p>
+                        <span class="text-sm text-slate-400 block mt-2">April 2019</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Modal Overlay (for achievement details) -->
+    <div id="modal-overlay" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center p-4 z-50 fade-out">
+        <!-- Modal Content -->
+        <div id="modal-content" class="bg-white rounded-lg shadow-2xl relative w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <!-- Close Button -->
+            <button id="close-modal" class="absolute top-4 right-4 text-slate-600 hover:text-slate-900 text-3xl font-bold p-2 rounded-full bg-white bg-opacity-80 hover:bg-opacity-100 transition-colors duration-200 z-20">
+                &times;
+            </button>
+
+            <!-- Modal Header with Title and Date -->
+            <div class="p-6 pb-2 border-b border-slate-200">
+                <h2 id="modal-title" class="text-3xl font-bold text-black mb-2"></h2>
+                <p id="modal-date" class="text-slate-500 text-lg"></p>
+            </div>
+
+            <!-- Modal Body - Scrollable content area -->
+            <div id="modal-body" class="flex-grow overflow-y-auto modal-content-scrollable p-6">
+                <!-- Content will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Lightbox Overlay (now using plain CSS and JS for functionality) -->
+    <div id="popup" class="fixed inset-0 bg-black bg-opacity-90 hidden justify-center items-center p-4 z-[100]">
+        <div class="relative w-full h-full flex items-center justify-center">
+            <img id="popup-image" src="" alt="Zoomed Image" class="max-w-[90vw] max-h-[90vh] object-contain rounded-lg shadow-xl">
+
+            <!-- Close Lightbox Button (now using .close class) -->
+            <button id="close-lightbox" class="close absolute top-4 right-4 text-white hover:text-gray-200 text-3xl font-bold p-2 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 transition-colors duration-200">
+                &times;
+            </button>
+
+            <!-- Previous Button -->
+            <button id="lightbox-prev" class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 text-white text-3xl focus:outline-none transition-colors duration-200">
+                &#10094;
+            </button>
+
+            <!-- Next Button -->
+            <button id="lightbox-next" class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-black bg-opacity-50 hover:bg-opacity-70 text-white text-3xl focus:outline-none transition-colors duration-200">
+                &#10095;
+            </button>
+        </div>
+    </div>
+
+    <!-- Custom Mouse Follower (the "See more" circle) -->
+    <div id="custom-mouse-follower">
+        See more
+    </div>
+        <!--FOOTER-->
+    <footer style="background-color: rgb(31, 31, 31); color: rgb(139, 139, 139);">
+    <div class="footer-container">
+        <div class="footer-section">
+            <h4>Link</h4>
+            <ul>
+                <li><a href="/index.html" style="color: rgb(139, 139, 139);">Home</a></li>
+                <li><a href="/projects/project3.html" style="color: rgb(139, 139, 139);">About</a></li>
+                <li><a href="/projects/project3.html" style="color: rgb(139, 139, 139);">Achievement</a></li>
+            </ul>
+        </div>
+        
+        <div class="footer-section">
+            <h4>Contact</h4>
+            <p>Address: 264/10/17/15 Lê Văn Lương, Tân Hưng Ward, D7, Ho Chi Minh City</p>
+            <p>Email: marythaotruc@gmail.com</p>
+            <p>Phone No: +84 773918933</p>
+        </div>
+        
+        <div class="footer-section">
+            <h4>Social Media</h4>
+            <ul>
+                <li><a href="https://www.facebook.com/nguyen.truc.727448/" style="color: rgb(139, 139, 139);"><i class="fab fa-facebook-f"></i> Facebook</a></li>
+                <li><a href="https://www.instagram.com/ttrucnguyen._/" style="color: rgb(139, 139, 139);"><i class="fab fa-instagram"></i> Instagram</a></li>
+            </ul>
+        </div>
+    </div>
+    
+    <div class="copyright" style="border-top: #fff;">
+    <p>&copy; 2025 Nguyen Thao Truc. All rights reserved.</p>
+    </div>
+    </footer>
+
+    <script>
+        // All JavaScript code is now placed here, at the end of the <body>,
+        // ensuring all HTML elements are loaded before being accessed.
+
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        const modalOverlay = document.getElementById('modal-overlay');
+        const closeModalButton = document.getElementById('close-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDate = document.getElementById('modal-date');
+        const modalBody = document.getElementById('modal-body');
+        const filterAllBtn = document.getElementById('filter-all');
+        const filterEducationalBtn = document.getElementById('filter-educational');
+        const filterExtracurricularBtn = document.getElementById('filter-extracurricular');
+        const timelineItemsContainer = document.getElementById('timeline-items-container');
+        const mainNavbar = document.getElementById('main-navbar');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        // Lightbox elements (now updated to match your provided snippet naming)
+        const popup = document.getElementById('popup'); // Renamed from lightboxOverlay
+        const popupImage = document.getElementById('popup-image'); // Renamed from lightboxImage
+        const closeBtn = document.querySelector('.close'); // Selected by class, as per your snippet
+
+        // Navigation buttons for popup gallery
+        const lightboxPrevButton = document.getElementById('lightbox-prev');
+        const lightboxNextButton = document.getElementById('lightbox-next');
+
+        // Custom mouse follower element
+        const customMouseFollower = document.getElementById('custom-mouse-follower');
+
+        let currentImageIndex = 0; // Current image index in the lightbox
+        let images = []; // Array to store image URLs for the current modal
+
+        // Data for each achievement to populate the modal, now with categories
+        const achievementsData = {
+            'graduated-university': {
+                title: '3rd Prize Excellent Student, Grade 12 City Level',
+                date: 'March 2025',
+                category: 'educational',
+                description: `
+                    <p class="mb-4">Awarded 3rd Prize in the Grade 12 City-Level Excellent Student Competition in Ho Chi Minh City, 2025. This highly selective academic contest recognizes top-performing students across various subjects. Earning a place among the top finalists reflects both my academic dedication and ability to perform under pressure in a competitive environment.</p>
+                    <div class="gallery-item"><img src="/images/prj0_1.jpg" alt="University Campus" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <div class="gallery-item"><img src="/images/prj0_2.jpg" alt="Graduation Day" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>                `
+            },
+            'first-professional-role': {
+                title: 'Co-founder & Art Director of Son Project',
+                date: '2023 - 2025',
+                category: 'extracurricular', // Classified as educational (career application of education)
+                description: `
+                    <p class="mb-4">I am honored to be the Co-founder and Vice President of the SON Project, a fundraising initiative where we designed and sold a unique puzzle board game. During the project,  I led a team of 20 in raising over 10 million VND through two successful fundraising campaigns. As part of this effort, I oversaw the full production of 100 self-designed board games, creatively inspired by Vietnamese cuisine. Additionally, I directed the allocation of profits, ensuring that the funds directly benefited about 50 children at the Ho Chi Minh City Children's Hospital. This experience allowed me to combine leadership, creativity, and social responsibility to make meaningful impacts. </p>
+                    <div class="gallery-item"><img src="/images/prj1_1.jpg" alt="Office Environment" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <p class="mb-4">This experience taught me the importance of teamwork and integrity, and help shaping my leadership style. I look forward to applying these values in my studies and future endeavors at RMIT.</p>
+                    <div class="gallery-item"><img src="/images/prj1_2.png" alt="Coding Workstation" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <div class="gallery-item"><img src="/images/prj1_3.jpg" alt="Coding Workstation" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <div class="gallery-item"><img src="/images/prj1_4.png" alt="Coding Workstation" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>               
+                    <div class="gallery-item"><img src="/images/prj1_5.jpg" alt="Coding Workstation" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>              
+                    `
+
+            },
+            'launched-personal-project': {
+                title: 'Head and Design and Media of LHP Social Work Team',
+                date: '2023 - 2024',
+                category: 'extracurricular',
+                description: `
+                    <p class="mb-4"> As the Head of Design and Media for the LHP Social Work Team at Le Hong Phong High School for the Gifted, I led a team of 10 designers in organizing and executing a media and design fundraising workshop and charity event, raising awareness and funds for the Ho Chi Minh City SOS Village. I spearheaded over 15 projects and 50+ media publications, which successfully attracted over 1,000 participants and increased website followers by 3,000+. Additionally, I wrote impactful news articles and documentaries to raise social awareness about supporting underprivileged communities, while scouting locations in need. My work contributed to the team's mission of fostering community engagement and driving positive social change. </p>
+                    <div class="gallery-item"><img src="/images/prj2_1.jpg" alt="TaskFlow Dashboard" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <div class="gallery-item"><img src="/images/prj2_2.png" alt="TaskFlow Mobile View" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <div class="gallery-item"><img src="/images/prj2_3.png" alt="TaskFlow Mobile View" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <p class="mb-4"> Below are my teammates and me (second person from the left) during a trip to SOS Village</p>
+                    <div class="gallery-item"><img src="/images/prj2_4.jpg" alt="TaskFlow Mobile View" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                `
+            },
+            'promoted-to-mid-level': {
+                title: 'Le Hong Phong Science and Engineering Fair – Project on Learning Methods System for Vietnam’s New High School Education Program',
+                date: '2023',
+                category: 'educational', // Classified as educational (career application of education)
+                description: `
+                    <p class="mb-4"> My third-place research in the school Science and Engineering Affair focused on developing an innovative note-taking system tailored specifically to the rapidly evolving Vietnamese curriculum. The recent changes to the curriculum have posed challenges for many students, making it difficult to keep up with the fast-paced shift. This research sought to address that by creating a method that not only helps students organize information more effectively but also emphasizes the practical application of theoretical concepts to real-life scenarios. By fostering interdisciplinary learning and enhancing problem-solving skills, the system enables students to easily identify key points during revision, leading to better retention and understanding. Ultimately, this approach aims to simplify the learning process, making it more accessible, adaptable, and effective in the context of a rapidly changing educational landscape. </p>
+                    <div class="gallery-item"><img src="/images/prj3.png" alt="Le Hong Phong Science and Engineering Fair" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                `
+            },
+            'contributed-to-open-source': {
+                title: 'Core Member – LHP Photography Club',
+                date: '2022 - 2024',
+                category: 'extracurricular',
+                description: `
+                    <p class="mb-4">Contributed to over five art photography projects, including serving as Director of Photography for a conceptual shoot. Worked as a staff photographer at the 2024 LHP Festival concert, which drew over 2,000 attendees, and collaborated with a team of photographers to document the school’s largest annual event—Festival Le Hong Phong 2024—capturing key moments and creating visual content for official promotion.</p>
+                    <div class="gallery-item"><img src="/images/prj4_1.jpg" alt="Core Member – LHP Photography Club" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                    <div class="gallery-item"><img src="/images/prj4_2.png" alt="Core Member – LHP Photography Club" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                `
+            },
+            'led-major-project': {
+                title: 'Silver Medal – Traditional April Olympic Mathematics Competition, Ho Chi Minh City',
+                date: '2021',
+                category: 'educational', // Classified as educational (career application of education)
+                description: `
+                    <p class="mb-4">Awarded for outstanding performance in a city-wide competition involving over 200 top-performing students. The contest featured a rigorous 2-hour test focused on IQ reasoning and rapid mathematical problem-solving, highlighting strong analytical thinking and time management under pressure.</p>
+                    <div class="gallery-item"><img src="/images/prj5.png" alt="Project Planning Board" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                `
+            },
+            'mentored-new-hires': {
+                title: 'Gold Medal – Traditional April Olympic Mathematics Competition, Ho Chi Minh City',
+                date: '2019',
+                category: 'educational', // Classified as educational (career application of education)
+                description: `
+                    <p class="mb-4">Awarded top honors in one of the city’s most prestigious math competitions, recognizing exceptional performance in problem-solving and logical reasoning. Ranked among the highest-scoring students in a competitive field of young mathematical talent from across Ho Chi Minh City.</p>
+                    <div class="gallery-item"><img src="/images/prj6.png" alt="Mentorship Session" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                `
+            },
+            'awarded-innovation-prize': {
+                title: '2nd Prize – Net Ve Xanh Art Competition, District 1, Ho Chi Minh City',
+                date: '2019',
+                category: 'extracurricular', // Classified as educational (career application of education)
+                description: `
+                    <p class="mb-4">Earned second place with an advocacy-themed painting focused on rhino protection, selected among 200+ young artists across the city. The competition emphasized creativity under time constraints, and the artwork was recognized for both its visual impact and environmental message.</p>
+                    <div class="gallery-item"><img src="/images/prj7.png" alt="Award Ceremony" class="w-full h-auto rounded-lg mb-4 shadow-md"></div>
+                `
+            }
+        };
+
+        // Function to update the timeline line height
+        function updateTimelineLineHeight() {
+            const timelineContainer = document.querySelector('.timeline-container');
+            const timelineLine = document.querySelector('.timeline-line');
+            if (timelineContainer && timelineLine) {
+                let visibleItemsHeight = 0;
+                Array.from(timelineItemsContainer.children).forEach(item => {
+                    if (!item.classList.contains('hidden')) { // Check if the entire timeline item is visible
+                        visibleItemsHeight += item.offsetHeight;
+                        // Approximate gap based on largest space-y value
+                        if (item !== timelineItemsContainer.lastElementChild) {
+                            visibleItemsHeight += 128;
+                        }
+                    }
+                });
+
+                timelineLine.style.height = `${timelineItemsContainer.offsetHeight}px`;
+
+                if (visibleItemsHeight === 0) {
+                     timelineLine.style.height = `0px`;
+                }
+            }
+        }
+
+        // Function to filter timeline items based on category
+        function filterTimeline(category) {
+            timelineItems.forEach(item => {
+                const itemCategory = item.dataset.category;
+
+                if (category === 'all' || itemCategory === category) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+            // Update button active state
+            filterAllBtn.classList.remove('bg-grey', 'text-white', 'border-sky-600');
+            filterAllBtn.classList.add('bg-white', 'text-black', 'border-sky-600');
+            filterEducationalBtn.classList.remove('bg-grey', 'text-white', 'border-sky-600');
+            filterEducationalBtn.classList.add('bg-white', 'text-black', 'border-sky-600');
+            filterExtracurricularBtn.classList.remove('bg-grey', 'text-white', 'border-sky-600');
+            filterExtracurricularBtn.classList.add('bg-white', 'text-black', 'border-sky-600');
+
+            if (category === 'all') {
+                filterAllBtn.classList.add('bg-grey', 'text-white');
+                filterAllBtn.classList.remove('bg-white', 'text-black');
+            } else if (category === 'educational') {
+                filterEducationalBtn.classList.add('bg-grey', 'text-white');
+                filterEducationalBtn.classList.remove('bg-white', 'text-black');
+            } else if (category === 'extracurricular') {
+                filterExtracurricularBtn.classList.add('bg-grey', 'text-white');
+                filterExtracurricularBtn.classList.remove('bg-white', 'text-black');
+            }
+
+            // Recalculate timeline line height after filtering
+            setTimeout(updateTimelineLineHeight, 100);
+        }
+
+        // --- Popup Gallery Functions (based on your provided snippet) ---
+
+        // Change image function (provided by user)
+        function changeImage(step) {
+            currentImageIndex = (currentImageIndex + step + images.length) % images.length;
+            popupImage.src = images[currentImageIndex];
+
+            // Removed logic to hide/show navigation buttons based on image count
+            // Buttons will always be visible now as requested.
+        }
+
+        // Show the popup with the clicked image
+        function openPopupGallery(clickedImageSrc) {
+            images.length = 0; // Reset images array for the current modal
+            document.querySelectorAll('#modal-body .gallery-item img').forEach(imgElement => {
+                images.push(imgElement.getAttribute('src')); // Assuming src is already the full image
+            });
+
+            currentImageIndex = images.findIndex(src => src === clickedImageSrc);
+            if (currentImageIndex === -1) currentImageIndex = 0; // Fallback if image not found
+
+            if (popup) popup.style.display = 'flex'; // Show popup
+            document.body.style.overflow = 'hidden'; // Prevent body scroll
+
+            // Hide the main modal when lightbox opens
+            if (modalOverlay) {
+                modalOverlay.classList.remove('fade-in');
+                modalOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    modalOverlay.classList.remove('flex');
+                    modalOverlay.classList.add('hidden');
+                }, 300); // Match fade-out duration
+            }
+
+
+            // Adjust navigation button visibility - calling changeImage with 0 to set initial image
+            // No longer hiding buttons based on image count, so this mostly sets initial image.
+            changeImage(0);
+        }
+
+        // Close the popup
+        function closePopupGallery() {
+            if (popup) popup.style.display = 'none'; // Hide popup
+            document.body.style.overflow = ''; // Restore body scrolling
+            if (mainNavbar) mainNavbar.classList.remove('hidden'); // Show the navbar
+
+            // Re-show main modal
+            if (modalOverlay) {
+                modalOverlay.classList.remove('hidden', 'fade-out');
+                modalOverlay.classList.add('flex', 'fade-in');
+            }
+        }
+
+
+        // --- Main Modal Functions ---
+        function openModal(achievementId) {
+            const data = achievementsData[achievementId];
+            if (data) {
+                modalTitle.textContent = data.title;
+                modalDate.textContent = data.date;
+                modalBody.innerHTML = data.description; // Populate modal with content
+
+                if (modalOverlay) { // Defensive check
+                    modalOverlay.classList.remove('hidden', 'fade-out');
+                    modalOverlay.classList.add('flex', 'fade-in');
+                    document.body.style.overflow = 'hidden'; // Prevent scrolling body
+                }
+                if (mainNavbar) mainNavbar.classList.add('hidden'); // Hide the navbar
+            }
+        }
+
+        function closeModal() {
+            if (modalOverlay) { // Defensive check
+                modalOverlay.classList.remove('fade-in');
+                modalOverlay.classList.add('fade-out');
+                setTimeout(() => {
+                    modalOverlay.classList.remove('flex');
+                    modalOverlay.classList.add('hidden');
+                    document.body.style.overflow = ''; // Restore body scrolling
+                }, 300); // Duration of the fade-out animation
+            }
+            if (mainNavbar) mainNavbar.classList.remove('hidden'); // Show the navbar
+        }
+
+        // --- Event Listeners ---
+
+        // Wrap all event listeners and initializations in DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', function() {
+            timelineItems.forEach(item => {
+                const headerElement = item.querySelector('h3'); // Select the h3 as the 'header'
+                if (headerElement) { // Ensure header exists before adding listeners
+                    headerElement.addEventListener('mouseenter', () => {
+                        item.style.cursor = 'none'; // Hide native cursor for the entire card
+                        if (customMouseFollower) { // Defensive check
+                            customMouseFollower.style.display = 'flex'; // Show custom cursor
+                            // Use a short delay before setting opacity and transform to allow display:flex to apply
+                            setTimeout(() => {
+                                customMouseFollower.style.opacity = '1';
+                                customMouseFollower.style.transform = 'translate(-50%, -50%) scale(1)'; // Scale up
+                            }, 10); // Small delay
+                        }
+                    });
+
+                    headerElement.addEventListener('mousemove', (event) => {
+                        // Position the custom cursor follower
+                        if (customMouseFollower) { // Defensive check
+                            customMouseFollower.style.left = event.clientX + 'px';
+                            customMouseFollower.style.top = event.clientY + 'px';
+                        }
+                    });
+
+                    headerElement.addEventListener('mouseleave', () => {
+                        item.style.cursor = 'default'; // Restore native cursor (or 'auto')
+                        if (customMouseFollower) { // Defensive check
+                            customMouseFollower.style.opacity = '0';
+                            customMouseFollower.style.transform = 'translate(-50%, -50%) scale(0.5)'; // Scale down
+                            // Completely hide after transition
+                            setTimeout(() => {
+                                customMouseFollower.style.display = 'none';
+                            }, 300); // Match transition duration
+                        }
+                    });
+                }
+
+                // Keep the click listener on the entire item to open the modal
+                item.addEventListener('click', (event) => {
+                    // Prevent opening modal if the click originated from a child that shouldn't trigger it (e.g., markers)
+                    if (!event.target.classList.contains('absolute') &&
+                        !event.target.classList.contains('timeline-marker') &&
+                        !event.target.closest('#custom-mouse-follower')) { // Ensure click through custom cursor
+                        const achievementId = item.dataset.id;
+                        openModal(achievementId);
+                    }
+                });
+            });
+
+            // Event listener for image clicks INSIDE the main modal body
+            // This now uses the .gallery-item selector
+            if (modalBody) { // Defensive check
+                modalBody.addEventListener('click', (event) => {
+                    if (event.target.tagName === 'IMG' && event.target.closest('.gallery-item')) {
+                        openPopupGallery(event.target.src);
+                    }
+                });
+            }
+
+
+            // Event listener for close button of main modal
+            if (closeModalButton) { // Defensive check
+                closeModalButton.addEventListener('click', closeModal);
+            } else {
+                console.error("Error: closeModalButton element not found.");
+            }
+
+
+            // Event listener for clicking outside main modal content
+            if (modalOverlay) { // Defensive check
+                modalOverlay.addEventListener('click', (event) => {
+                    if (event.target === modalOverlay) {
+                        closeModal();
+                    }
+                });
+            }
+
+            // Event listener for Escape key to close main modal OR lightbox
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    // Check if popup is visible using style.display
+                    if (popup && popup.style.display === 'flex') {
+                        closePopupGallery();
+                    } else if (modalOverlay && modalOverlay.classList.contains('flex')) { // Check if main modal is visible
+                        closeModal();
+                    }
+                }
+            });
+
+            // Event listeners for filter buttons
+            if (filterAllBtn) filterAllBtn.addEventListener('click', () => filterTimeline('all'));
+            if (filterEducationalBtn) filterEducationalBtn.addEventListener('click', () => filterTimeline('educational'));
+            if (filterExtracurricularBtn) filterExtracurricularBtn.addEventListener('click', () => filterTimeline('extracurricular'));
+
+
+
+            // Lightbox navigation events
+            if (lightboxPrevButton) { // Defensive check
+                lightboxPrevButton.addEventListener('click', () => {
+                    changeImage(-1);
+                });
+            } else {
+                console.error("Error: lightboxPrevButton element not found.");
+            }
+
+            if (lightboxNextButton) { // Defensive check
+                lightboxNextButton.addEventListener('click', () => {
+                    changeImage(1);
+                });
+            } else {
+                console.error("Error: lightboxNextButton element not found.");
+            }
+
+
+            // Close popup gallery via its specific close button
+            if (closeBtn) { // Defensive check
+                closeBtn.addEventListener('click', closePopupGallery);
+            } else {
+                console.error("Error: closeBtn element not found.");
+            }
+
+            // Initial load: show all achievements and set initial line height
+            filterTimeline('all'); // Show all by default
+            updateTimelineLineHeight(); // Set initial height
+        });
+
+        // Recalculate line height on window resize
+        window.addEventListener('resize', updateTimelineLineHeight);
+    </script>
+
+    <!-- Liên kết tới file JavaScript -->
+    <script src="/script.js"></script>
+</body>
+</html>
